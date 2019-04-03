@@ -1,0 +1,22 @@
+
+
+#board {
+  border: 2px solid black;
+}
+
+.easy {
+  display: grid;
+  width: 800px;
+  height: 800px;
+  grid-template-rows: repeat(8, 1fr);
+  grid-auto-flow: column;
+}
+
+.element {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}

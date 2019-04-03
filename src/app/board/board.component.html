@@ -1,0 +1,7 @@
+<div id="board" [class]='getBoardSize()'>
+  <div class="rows" *ngFor="let row of boardWithBombs" class="element">
+    <div *ngFor="let col of row">
+      {{col}}
+    </div>
+  </div>
+</div>
