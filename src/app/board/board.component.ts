@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Renderer2  } from '@angular/core';
 
 @Component({
   selector: 'app-board',
@@ -7,12 +7,16 @@ import { Component, OnInit } from '@angular/core';
 })
 export class BoardComponent implements OnInit {
 
-  constructor() {}
+  constructor(private renderer: Renderer2) {}
   public rows;
   public columns;
   difficulty = "easy";
   boardWithBombs = [];
   totalBombs = 0;
+  display = "square";
+  box = "";
+  selectedElement = null;
+  class: string;
 
   ngOnInit() {
 
@@ -20,6 +24,7 @@ export class BoardComponent implements OnInit {
     this.populateBombs()
     this.findBombs();
     console.log("total bombs: ", this.totalBombs);
+    console.log("column", this.columns);
   }
   getBoardSize() {
     if (this.difficulty == "easy") {
@@ -27,6 +32,20 @@ export class BoardComponent implements OnInit {
       this.columns = 8;
       return "easy";
     }
+  }
+  checkContent() {
+    if (this.display === "square") {
+    return this.box;
+    }
+  }
+  check(col) {
+    console.log(col);
+
+    // this.selectedElement = this.boardWithBombs[row][col];
+    // console.log(this.boardWithBombs[row][col]);
+    // if (this.selectedElement === "bomb") {
+    //   this.selectedElement = "bomb";
+    // }
   }
   populateBombs(){
     for(let i = 0; i< this.rows; i++){
@@ -189,5 +208,35 @@ export class BoardComponent implements OnInit {
       }
     }
     console.log(total);
+  }
+
+
+  toggleClass(event: any, ourClass: string) {
+    const hasClass = event.target.classList.contains(ourClass);
+    if(hasClass) {
+      console.log("This is working");
+      this.renderer.removeClass(event.target, ourClass);
+    } else {
+      // this.renderer.removeClass(event.target, ourClass);
+      console.log(event.target.classList);
+      this.renderer.addClass(event.target, 'bomb');
+
+    }
+  }
+
+  setWidth(col) {
+    console.log(col);
+    return "bomb";
+  //   let rowsLength = this.rows * 100;
+  //   let columnsLength = this.columns * 100;
+  //   for(let i = 0; i < rowsLength; i++) {
+  //     for(let j = 0; j < columnsLength; j++) {
+  //       let index = i + j;
+  //       let word = index.toString();
+  //       let element = document.getElementsByClassName(word);
+  //       console.log()
+  //     }
+  //   }
+  // }
   }
 }

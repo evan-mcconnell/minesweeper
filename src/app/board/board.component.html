@@ -1,7 +1,9 @@
 <div id="board" [class]='getBoardSize()'>
-  <div class="rows" *ngFor="let row of boardWithBombs" class="element">
-    <div *ngFor="let col of row">
-      {{col}}
+  <div class="rows" *ngFor="let row of boardWithBombs; let j = index" class="element">
+    <div *ngFor="let column of row; let i = index" [class]="checkContent()" >
+      <div class="item" (click)="toggleClass($event, 'currentClass')" [class]='i + (j * 100)'>
+        {{column}}
+      </div>
     </div>
   </div>
 </div>
