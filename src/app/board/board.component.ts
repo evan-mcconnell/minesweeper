@@ -20,11 +20,9 @@ export class BoardComponent implements OnInit {
 
   ngOnInit() {
 
-    console.log(this.getBoardSize());
+    this.getBoardSize();
     this.populateBombs()
     this.findBombs();
-    console.log("total bombs: ", this.totalBombs);
-    console.log("column", this.columns);
   }
   getBoardSize() {
     if (this.difficulty == "easy") {
@@ -39,14 +37,12 @@ export class BoardComponent implements OnInit {
     }
   }
   check(col) {
-    console.log(col);
   }
   populateBombs(){
     for(let i = 0; i< this.rows; i++){
       let array = [];
       for(let j = 0; j< this.columns; j++) {
         if(!this.placeBomb()) {
-          console.log("working");
           array.push("")
         } else {
           this.totalBombs++
@@ -55,7 +51,6 @@ export class BoardComponent implements OnInit {
       }
       this.boardWithBombs.push(array)
     }
-    console.log(this.boardWithBombs);
   }
   placeBomb() {
     let bombPlacement = Math.floor(Math.random() * 100 + 1)
@@ -202,12 +197,12 @@ export class BoardComponent implements OnInit {
         }
       }
     }
-    console.log(total);
+    console.log("Total Bombs:", total);
   }
   getClasses(column, i, j) {
     let unique = i + (j * 100);
     if (column === "") {
-      return `${unique} square empty `;
+      return `${unique} empty square `;
     } else {
       return ` ${unique} square`;
     }
@@ -220,7 +215,6 @@ export class BoardComponent implements OnInit {
     if(hasClass) {
       this.renderer.removeClass(event.target, ourClass);
     } else {
-      console.log(event.target.classList);
       this.renderer.addClass(event.target, 'revealed');
 
 
@@ -230,6 +224,8 @@ export class BoardComponent implements OnInit {
 
   empty(event: any, ourClass: string) {
     let hasClass = parseInt(event.target.classList[0]);
+    let hasAEmptyClass = event.target.classList[1];
+    console.log(hasAEmptyClass);
     if(hasClass === 0) {
       hasClass = -5000;
     }
@@ -237,7 +233,6 @@ export class BoardComponent implements OnInit {
       if (hasClass === -5000) {
         hasClass = 0;
       }
-      console.log("does have class", hasClass);
       let topLeft = hasClass - 101
       let topMiddle = hasClass - 100;
       let topRight = hasClass - 99;
@@ -246,24 +241,45 @@ export class BoardComponent implements OnInit {
       let bottomLeft = hasClass + 99;
       let bottomMiddle = hasClass + 100;
       let bottomRight = hasClass + 101;
-      // console.log(topLeft, topMiddle, topRight, left, right, bottomLeft, bottomMiddle, bottomRight);
       let array = [topLeft, topMiddle, topRight, left, right, bottomLeft, bottomMiddle, bottomRight];
       let check = [];
+      let alreadyChecked = [];
       array = this.checkGrid(array);
-      console.log("New Array: ", array);
-      for(let i = 0; i < array.length; i++) {
-        const current = array[i].toString();
+      if(hasAEmptyClass === 'empty') {
+        for(let i = 0; i < array.length; i++) {
+          const current = array[i].toString();
 
-        const currentElement = document.getElementsByClassName(current);
-        // console.log("IT has classes", currentElement)
-        let isEmpty = currentElement[0].classList.contains("empty");
-        if(isEmpty) {
-
-          console.log("empty?", isEmpty)
+          const currentElement = document.getElementsByClassName(current);
+          let hasEmptyClass = currentElement[0].classList.contains("empty");
+          if(hasEmptyClass) {
+            check.push(array[i])
+            console.log("empty?", hasEmptyClass)
+          }
         }
-
       }
+      this.clear(check, event, array);
+      console.log("Empty Elements:", check);
     }
+  }
+
+
+
+  clear(check, event, array) {
+    let alreadyChecked = [];
+    let needCheck = [];
+    var grid;
+    for(let i = 0; i < check.length; i++) {
+      let current = check[i];
+      let currentElement = document.getElementsByClassName(current);
+      let className = 'empty';
+      currentElement[0].classList.add('revealed');
+      alreadyChecked.push(current);
+      grid = this.checkGrid(array)
+      needCheck.push(grid);
+    }
+    console.log(needCheck);
+
+
   }
 
   checkGrid(array) {
@@ -294,16 +310,11 @@ export class BoardComponent implements OnInit {
           i--;
         }
       } else {
-        console.log("got to last else");
         if(array[i] === rounded) {
-          console.log("got to last else, first if");
           array.splice(i, 1);
-          console.log("first", array);
           i--;
         } else if((Math.round(array[i]/100) + 1) > bottomRow) {
-          console.log("got to last else, second if");
           array.splice(i, 1);
-          console.log("second", array)
           i--;
         } else if((array[i] - Math.round(array[i]/100)*100) > rightColumn) {
           array.splice(i, 1);
@@ -315,5 +326,5 @@ export class BoardComponent implements OnInit {
   console.log(array);
   return array;
 
-  }
+}
 }
