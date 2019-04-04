@@ -35,17 +35,11 @@ export class BoardComponent implements OnInit {
   }
   checkContent() {
     if (this.display === "square") {
-    return this.box;
+    return this.display;
     }
   }
   check(col) {
     console.log(col);
-
-    // this.selectedElement = this.boardWithBombs[row][col];
-    // console.log(this.boardWithBombs[row][col]);
-    // if (this.selectedElement === "bomb") {
-    //   this.selectedElement = "bomb";
-    // }
   }
   populateBombs(){
     for(let i = 0; i< this.rows; i++){
@@ -53,7 +47,7 @@ export class BoardComponent implements OnInit {
       for(let j = 0; j< this.columns; j++) {
         if(!this.placeBomb()) {
           console.log("working");
-          array.push(false)
+          array.push("")
         } else {
           this.totalBombs++
           array.push("bomb")
@@ -67,6 +61,7 @@ export class BoardComponent implements OnInit {
     let bombPlacement = Math.floor(Math.random() * 100 + 1)
     return bombPlacement <= 10 ? true : false;
   }
+
 
 
   checkTop(row, column, bottomRow, rightColumn) {
@@ -209,34 +204,104 @@ export class BoardComponent implements OnInit {
     }
     console.log(total);
   }
+  getClasses(column, i, j) {
+    let unique = i + (j * 100);
+    if (column === "") {
+      return `${unique} square empty `;
+    } else {
+      return ` ${unique} square`;
+    }
+  }
 
 
   toggleClass(event: any, ourClass: string) {
+    this.empty(event, ourClass)
     const hasClass = event.target.classList.contains(ourClass);
     if(hasClass) {
-      console.log("This is working");
       this.renderer.removeClass(event.target, ourClass);
     } else {
-      // this.renderer.removeClass(event.target, ourClass);
       console.log(event.target.classList);
-      this.renderer.addClass(event.target, 'bomb');
+      this.renderer.addClass(event.target, 'revealed');
+
 
     }
   }
 
-  setWidth(col) {
-    console.log(col);
-    return "bomb";
-  //   let rowsLength = this.rows * 100;
-  //   let columnsLength = this.columns * 100;
-  //   for(let i = 0; i < rowsLength; i++) {
-  //     for(let j = 0; j < columnsLength; j++) {
-  //       let index = i + j;
-  //       let word = index.toString();
-  //       let element = document.getElementsByClassName(word);
-  //       console.log()
-  //     }
-  //   }
-  // }
+
+  empty(event: any, ourClass: string) {
+    let hasClass = parseInt(event.target.classList[0]);
+    if(hasClass === 0) {
+      hasClass = -5000;
+    }
+    if(hasClass) {
+      if (hasClass === -5000) {
+        hasClass = 0;
+      }
+      console.log("does have class", hasClass);
+      let topLeft = hasClass - 101
+      let topMiddle = hasClass - 100;
+      let topRight = hasClass - 99;
+      let left = hasClass - 1;
+      let right = hasClass + 1;
+      let bottomLeft = hasClass + 99;
+      let bottomMiddle = hasClass + 100;
+      let bottomRight = hasClass + 101;
+      // console.log(topLeft, topMiddle, topRight, left, right, bottomLeft, bottomMiddle, bottomRight);
+      let array = [topLeft, topMiddle, topRight, left, right, bottomLeft, bottomMiddle, bottomRight];
+      let check = [];
+      this.checkGrid(array);
+      // for(let i = 0; i < array.length; i++) {
+      //   const current = array[i].toString();
+      //
+      //   const currentElement = document.getElementsByClassName(current);
+      //   // console.log("IT has classes", currentElement)
+      //   let isEmpty = currentElement[0].classList.contains("empty");
+      //   if(isEmpty) {
+      //
+      //     console.log("empty?", isEmpty)
+      //   }
+      //
+      // }
+    }
+  }
+
+  checkGrid(array) {
+    let topRow = 0;
+    let bottomRow = this.boardWithBombs.length - 1;
+    let leftColumn = 0;
+    let rightColumn = this.boardWithBombs[0].length - 1;
+
+    for(let i = 0; i < array.length; i++) {
+      let rounded = Math.round(array[i]/100)*100 - 1;
+      if(i < 3) {
+        if(array[i] < 0) {
+          array.splice(i, 1);
+          i--;
+        } else if((array[i] - Math.round(array[i]/100)*100) > rightColumn) {
+          array.splice(i, 1);
+          i--;
+        } else if(array[i] === rounded) {
+          array.splice(i, 1);
+          i--;
+        }
+      }else if(i < 5) {
+        if(array[i] === rounded) {
+          array.splice(i, 1);
+          i--;
+        } else if((array[i] - Math.round(array[i]/100)*100) > rightColumn) {
+          array.splice(i, 1);
+          i--;
+        }
+      } else {
+        if(array[i] === rounded || rounded === -5001) {
+          array.splice(i, 1);
+          i--;
+        } else if((Math.round(array[i]/100) + 1) > bottomRow) {
+          array.splice(i, 1);
+          i--;
+        }
+      }
+  }
+  console.log(array);
   }
 }

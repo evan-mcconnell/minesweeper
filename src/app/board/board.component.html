@@ -1,8 +1,13 @@
 <div id="board" [class]='getBoardSize()'>
   <div class="rows" *ngFor="let row of boardWithBombs; let j = index" class="element">
     <div *ngFor="let column of row; let i = index" [class]="checkContent()" >
-      <div class="item" (click)="toggleClass($event, 'currentClass')" [class]='i + (j * 100)'>
-        {{column}}
+      <div [class]="getClasses(column, i, j)" (click)="toggleClass($event, 'currentClass')">
+        <div *ngIf="column !=='bomb'">
+          {{column}}
+        </div>
+        <div *ngIf="column ==='bomb'">
+          <img src="../assets/mine.png">
+        </div>
       </div>
     </div>
   </div>
