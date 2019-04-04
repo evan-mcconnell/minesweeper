@@ -249,19 +249,20 @@ export class BoardComponent implements OnInit {
       // console.log(topLeft, topMiddle, topRight, left, right, bottomLeft, bottomMiddle, bottomRight);
       let array = [topLeft, topMiddle, topRight, left, right, bottomLeft, bottomMiddle, bottomRight];
       let check = [];
-      this.checkGrid(array);
-      // for(let i = 0; i < array.length; i++) {
-      //   const current = array[i].toString();
-      //
-      //   const currentElement = document.getElementsByClassName(current);
-      //   // console.log("IT has classes", currentElement)
-      //   let isEmpty = currentElement[0].classList.contains("empty");
-      //   if(isEmpty) {
-      //
-      //     console.log("empty?", isEmpty)
-      //   }
-      //
-      // }
+      array = this.checkGrid(array);
+      console.log("New Array: ", array);
+      for(let i = 0; i < array.length; i++) {
+        const current = array[i].toString();
+
+        const currentElement = document.getElementsByClassName(current);
+        // console.log("IT has classes", currentElement)
+        let isEmpty = currentElement[0].classList.contains("empty");
+        if(isEmpty) {
+
+          console.log("empty?", isEmpty)
+        }
+
+      }
     }
   }
 
@@ -270,10 +271,10 @@ export class BoardComponent implements OnInit {
     let bottomRow = this.boardWithBombs.length - 1;
     let leftColumn = 0;
     let rightColumn = this.boardWithBombs[0].length - 1;
-
+    let e = 0;
     for(let i = 0; i < array.length; i++) {
       let rounded = Math.round(array[i]/100)*100 - 1;
-      if(i < 3) {
+      if(e < 3) {
         if(array[i] < 0) {
           array.splice(i, 1);
           i--;
@@ -284,7 +285,7 @@ export class BoardComponent implements OnInit {
           array.splice(i, 1);
           i--;
         }
-      }else if(i < 5) {
+      }else if(e < 5) {
         if(array[i] === rounded) {
           array.splice(i, 1);
           i--;
@@ -293,15 +294,26 @@ export class BoardComponent implements OnInit {
           i--;
         }
       } else {
-        if(array[i] === rounded || rounded === -5001) {
+        console.log("got to last else");
+        if(array[i] === rounded) {
+          console.log("got to last else, first if");
           array.splice(i, 1);
+          console.log("first", array);
           i--;
         } else if((Math.round(array[i]/100) + 1) > bottomRow) {
+          console.log("got to last else, second if");
+          array.splice(i, 1);
+          console.log("second", array)
+          i--;
+        } else if((array[i] - Math.round(array[i]/100)*100) > rightColumn) {
           array.splice(i, 1);
           i--;
         }
       }
+      e++;
   }
   console.log(array);
+  return array;
+
   }
 }
