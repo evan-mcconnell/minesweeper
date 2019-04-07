@@ -19,11 +19,12 @@ export class BoardComponent implements OnInit {
   class: string;
 
   ngOnInit() {
-
     this.getBoardSize();
     this.populateBombs()
     this.findBombs();
+    console.log("Total Bombs:", this.totalBombs);
   }
+
   getBoardSize() {
     if (this.difficulty == "easy") {
       this.rows = 8;
@@ -31,13 +32,18 @@ export class BoardComponent implements OnInit {
       return "easy";
     }
   }
+
   checkContent() {
     if (this.display === "square") {
     return this.display;
     }
   }
-  check(col) {
+
+  placeBomb() {
+    let bombPlacement = Math.floor(Math.random() * 100 + 1)
+    return bombPlacement <= 10 ? true : false;
   }
+
   populateBombs(){
     for(let i = 0; i< this.rows; i++){
       let array = [];
@@ -52,12 +58,6 @@ export class BoardComponent implements OnInit {
       this.boardWithBombs.push(array)
     }
   }
-  placeBomb() {
-    let bombPlacement = Math.floor(Math.random() * 100 + 1)
-    return bombPlacement <= 10 ? true : false;
-  }
-
-
 
   checkTop(row, column, bottomRow, rightColumn) {
     let total = 0
@@ -197,8 +197,8 @@ export class BoardComponent implements OnInit {
         }
       }
     }
-    console.log("Total Bombs:", total);
   }
+
   getClasses(column, i, j) {
     let unique = i + (j * 100);
     if (column === "") {
@@ -210,79 +210,68 @@ export class BoardComponent implements OnInit {
 
 
   toggleClass(event: any, ourClass: string) {
-    this.empty(event, ourClass)
+    this.emptyCells(event);
     const hasClass = event.target.classList.contains(ourClass);
-    if(hasClass) {
-      this.renderer.removeClass(event.target, ourClass);
-    } else {
+    console.log("hasClass", hasClass);
+    if(!hasClass) {
       this.renderer.addClass(event.target, 'revealed');
-
-
     }
   }
 
-
-  empty(event: any, ourClass: string) {
-    let hasClass = parseInt(event.target.classList[0]);
-    let hasAEmptyClass = event.target.classList[1];
-    console.log(hasAEmptyClass);
-    if(hasClass === 0) {
-      hasClass = -5000;
+  getFullCellsArray(identifierClass) {
+    if(identifierClass === 0) {
+      identifierClass = -5000;
     }
-    if(hasClass) {
-      if (hasClass === -5000) {
-        hasClass = 0;
+    if(identifierClass) {
+      if (identifierClass === -5000) {
+        identifierClass = 0;
       }
-      let topLeft = hasClass - 101
-      let topMiddle = hasClass - 100;
-      let topRight = hasClass - 99;
-      let left = hasClass - 1;
-      let right = hasClass + 1;
-      let bottomLeft = hasClass + 99;
-      let bottomMiddle = hasClass + 100;
-      let bottomRight = hasClass + 101;
-      let array = [topLeft, topMiddle, topRight, left, right, bottomLeft, bottomMiddle, bottomRight];
-      let check = [];
-      let alreadyChecked = [];
-      array = this.checkGrid(array);
-      if(hasAEmptyClass === 'empty') {
-        for(let i = 0; i < array.length; i++) {
-          const current = array[i].toString();
+      let topLeft = identifierClass - 101
+      let topMiddle = identifierClass - 100;
+      let topRight = identifierClass - 99;
+      let left = identifierClass - 1;
+      let right = identifierClass + 1;
+      let bottomLeft = identifierClass + 99;
+      let bottomMiddle = identifierClass + 100;
+      let bottomRight = identifierClass + 101;
+      return [topLeft, topMiddle, topRight, left, right, bottomLeft, bottomMiddle, bottomRight];
+    }
+  }
 
-          const currentElement = document.getElementsByClassName(current);
-          let hasEmptyClass = currentElement[0].classList.contains("empty");
-          if(hasEmptyClass) {
-            check.push(array[i])
-            console.log("empty?", hasEmptyClass)
-          }
+  emptyCells(event: any) {
+    let identifierClass = parseInt(event.target.classList[0]);
+    let hasAEmptyClass = event.target.classList[1];
+    console.log("does have empty?", hasAEmptyClass);
+    let fullCellsArray = this.getFullCellsArray(identifierClass);
+    let emptyElements = [];
+    let reachableCells = this.checkAdjacentCellsForReachable(fullCellsArray);
+    console.log("reachable cells", reachableCells);
+    if(hasAEmptyClass === 'empty') {
+      for(let i = 0; i < reachableCells.length; i++) {
+        const current = reachableCells[i].toString();
+        const currentElement = document.getElementsByClassName(current);
+        let hasEmptyClass = currentElement[0].classList.contains("empty");
+        if(hasEmptyClass) {
+          emptyElements.push(reachableCells[i])
+          console.log("empty?", hasEmptyClass)
         }
       }
-      this.clear(check, event, array);
-      console.log("Empty Elements:", check);
+      this.revealEmptyCells(emptyElements);
+      console.log("Empty Elements:", emptyElements);
+      console.log("reachable cells:", reachableCells);
     }
   }
 
-
-
-  clear(check, event, array) {
-    let alreadyChecked = [];
-    let needCheck = [];
-    var grid;
-    for(let i = 0; i < check.length; i++) {
-      let current = check[i];
+  revealEmptyCells(emptyElements) {
+    for(let i = 0; i < emptyElements.length; i++) {
+      let current = emptyElements[i];
       let currentElement = document.getElementsByClassName(current);
       let className = 'empty';
       currentElement[0].classList.add('revealed');
-      alreadyChecked.push(current);
-      grid = this.checkGrid(array)
-      needCheck.push(grid);
     }
-    console.log(needCheck);
-
-
   }
 
-  checkGrid(array) {
+  checkAdjacentCellsForReachable(array) {
     let topRow = 0;
     let bottomRow = this.boardWithBombs.length - 1;
     let leftColumn = 0;
@@ -322,9 +311,8 @@ export class BoardComponent implements OnInit {
         }
       }
       e++;
+    }
+    console.log(array);
+    return array;
   }
-  console.log(array);
-  return array;
-
-}
 }
